@@ -1,0 +1,11 @@
+streamlit
+langgraph
+langchain
+langchain-community
+langchain-nvidia-ai-endpoints
+langchain-chroma
+pydantic
+PyPDF2
+reportlab
+python-dotenv
+chromadb
