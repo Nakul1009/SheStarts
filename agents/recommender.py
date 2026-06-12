@@ -4,7 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from agents.state import CareerRecommendations, CareerCounselingState, AgentLogEntry
 from agents.llm_helper import get_structured_output
 from langchain_nvidia import NVIDIAEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 
 def retrieve_counseling_context(query: str, state: CareerCounselingState) -> str:
@@ -16,8 +16,8 @@ def retrieve_counseling_context(query: str, state: CareerCounselingState) -> str
     try:
         persist_dir = "./rag/chroma_db"
         embeddings = NVIDIAEmbeddings(
-                model="nvidia/embeddings-nv-embed-qa-4",
-                nvidia_api_key=state.nvidia_api_key
+                model="nvidia/nv-embedqa-e5-v5",
+                api_key=state.nvidia_api_key
             )
         
         # Check if the DB already exists or if we should populate it
