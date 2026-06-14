@@ -67,7 +67,28 @@ def skill_gap_agent(state: CareerCounselingState) -> CareerCounselingState:
         )
     except Exception as e:
         print(f"Skill Gap Agent failed: {e}. Falling back to default report.")
-        # Fallback
+        from agents.state import MissingSkill
+        skill_gap_report = SkillGapReport(
+            target_role=target_role,
+            matching_skills=user_profile.current_skills or ["Communication", "Problem Solving"],
+            missing_skills=[
+                MissingSkill(
+                    skill_name="Domain Specific Tools",
+                    importance_level="Critical",
+                    description=f"Core technical skills and platforms required to succeed as a {target_role}."
+                ),
+                MissingSkill(
+                    skill_name="Practical Projects",
+                    importance_level="Important",
+                    description="Hands-on portfolio projects showcasing real-world experience."
+                ),
+                MissingSkill(
+                    skill_name="Collaborative Tools",
+                    importance_level="Nice-to-have",
+                    description="Familiarity with team productivity tools like Git, Jira, or Slack."
+                )
+            ]
+        )
         
         
     log_entry: AgentLogEntry = {

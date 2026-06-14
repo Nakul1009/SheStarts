@@ -43,7 +43,6 @@ def profiler_agent(state: CareerCounselingState) -> CareerCounselingState:
         "format_instructions": ""  # Filled by helper if needed
     }
     
-    # Invoke structured LLM
     try:
         user_profile = get_structured_output(
             state=state,
@@ -54,7 +53,39 @@ def profiler_agent(state: CareerCounselingState) -> CareerCounselingState:
     except Exception as e:
         # Emergency fallback logic in case LLM fails completely
         print(f"Profiler agent failed: {e}")
-        # Create a basic profile from inputs
+        from agents.state import WorkExperience
+        # Clean skills list
+        skills_str = form_inputs.get("skills", "")
+        skills_list = [s.strip() for s in skills_str.split(",") if s.strip()]
+        if not skills_list:
+            skills_list = ["Communication", "Problem Solving"]
+        
+        # Calculate daily study hours from commitment (which is weekly commitment)
+        weekly_commitment = float(form_inputs.get("commitment", 10))
+        daily_commitment = max(0.5, round(weekly_commitment / 7.0, 1))
+
+        # Experience parsing
+        years_exp = float(form_inputs.get("experience", 3))
+        
+        user_profile = UserProfile(
+            name=form_inputs.get("name") or "Valued Candidate",
+            education=form_inputs.get("education") or "Bachelor's Degree",
+            previous_experience=[
+                WorkExperience(
+                    role="Prior Professional",
+                    company="Previous Company",
+                    years=years_exp,
+                    description="General professional experience prior to career break."
+                )
+            ] if years_exp > 0 else [],
+            total_experience_years=years_exp,
+            gap_duration_years=float(form_inputs.get("career_gap") or form_inputs.get("career_break") or 1.0),
+            gap_reason="Career break (Childcare/Family/Relocation)",
+            current_skills=skills_list,
+            time_commitment_hours_per_day=daily_commitment,
+            remote_preference=", ".join(form_inputs.get("work_style", ["Remote"])),
+            additional_notes=form_inputs.get("goal") or ""
+        )
         
     
     # Update logs

@@ -4,7 +4,7 @@ from langchain_nvidia_ai_endpoints import ChatNVIDIA
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
-def get_llm(state: dict, model_name: str = "meta/llama-3.1-70b-instruct"):
+def get_llm(state: dict, model_name: str = "nvidia/nemotron-3-ultra-550b-a55b"):
     """
     Initializes ChatNVIDIA using the API key in state or environment.
     """
@@ -14,11 +14,15 @@ def get_llm(state: dict, model_name: str = "meta/llama-3.1-70b-instruct"):
     
     return ChatNVIDIA(
         model=model_name,
-        nvidia_api_key=api_key,
-        temperature=0.2
+        api_key=api_key,
+        temperature=1.0,
+        top_p=0.95,
+        max_tokens=16384,
+        reasoning_budget=16384,
+        chat_template_kwargs={"enable_thinking": True}
     )
 
-def get_structured_output(state: dict, pydantic_model, prompt_template: ChatPromptTemplate, prompt_vars: dict, model_name: str = "meta/llama-3.1-70b-instruct"):
+def get_structured_output(state: dict, pydantic_model, prompt_template: ChatPromptTemplate, prompt_vars: dict, model_name: str = "nvidia/nemotron-3-ultra-550b-a55b"):
     """
     Generates structured output for a Pydantic model. 
     Uses langchain's .with_structured_output if supported, 

@@ -3,7 +3,7 @@ from datetime import datetime
 from langchain_core.prompts import ChatPromptTemplate
 from agents.state import CareerRecommendations, CareerCounselingState, AgentLogEntry
 from agents.llm_helper import get_structured_output
-from langchain_nvidia import NVIDIAEmbeddings
+from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
 from langchain_chroma import Chroma
 
 
@@ -13,11 +13,12 @@ def retrieve_counseling_context(query: str, state: CareerCounselingState) -> str
     performs a keyword search over RELAUNCH_DATA.
     """
     context = ""
+    api_key = state.get("nvidia_api_key") or os.getenv("NVIDIA_API_KEY")
     try:
         persist_dir = "./rag/chroma_db"
         embeddings = NVIDIAEmbeddings(
                 model="nvidia/nv-embedqa-e5-v5",
-                api_key=state.nvidia_api_key
+                nvidia_api_key=api_key
             )
         
         # Check if the DB already exists or if we should populate it
@@ -32,6 +33,20 @@ def retrieve_counseling_context(query: str, state: CareerCounselingState) -> str
         print(f"Retrieved {len(results)} relevant records from Chroma Vector DB.")
     except Exception as e:
         print(f"Chroma DB retrieval failed: {e}. Using direct data fallback.")
+        try:
+            from rag.data import DATA
+            # Simple keyword matching fallback
+            keywords = query.lower().split()
+            matched_docs = []
+            for item in DATA:
+                match_count = sum(1 for kw in keywords if kw in item["title"].lower() or kw in item["content"].lower())
+                if match_count > 0:
+                    matched_docs.append((match_count, item))
+            # Sort by match count descending
+            matched_docs.sort(key=lambda x: x[0], reverse=True)
+            context = "\n\n".join([f"Title: {item['title']}\nContent: {item['content']}" for _, item in matched_docs[:3]])
+        except Exception as fallback_err:
+            print(f"Fallback direct data search also failed: {fallback_err}")
                
     return context
 
@@ -50,7 +65,7 @@ def recommender_agent(state: CareerCounselingState) -> CareerCounselingState:
     rag_context = retrieve_counseling_context(query_str, state)
     
     system_prompt = (
-        "You are an empathetic, strategic Recommender Agent for SheStarts. Your goal is to suggest "
+        "You are an strategic Recommender Agent for SheStarts. Your goal is to suggest "
         "3 to 5 realistic, high-potential career paths for a woman restarting her career after a break. "
         "Prioritize roles that are remote-friendly, have returnship programs active, or have a lower "
         "barrier to entry for career changers.\n\n"
@@ -106,8 +121,36 @@ def recommender_agent(state: CareerCounselingState) -> CareerCounselingState:
         )
     except Exception as e:
         print(f"Recommender agent failed: {e}. Falling back to default recommendations.")
+        from agents.state import CareerPath
+        recommendations = CareerRecommendations(
+            recommended_paths=[
+                CareerPath(
+                    title="Data Analyst",
+                    suitability_reasoning="A great, analytical role with high remote flexibility, leveraging your previous transferable skills.",
+                    remote_suitability_score=8,
+                    entry_barrier="Medium",
+                    target_companies=["Capgemini", "Amazon", "Tata SCIP"],
+                    demand_index_2026="High"
+                ),
+                CareerPath(
+                    title="AI Prompt Engineer",
+                    suitability_reasoning="A fast-growing, low-code entry point that matches technical curiosity and adaptability.",
+                    remote_suitability_score=9,
+                    entry_barrier="Low",
+                    target_companies=["Goldman Sachs", "IBM"],
+                    demand_index_2026="High"
+                ),
+                CareerPath(
+                    title="Digital Marketing Specialist",
+                    suitability_reasoning="A creative, data-driven path that is highly remote-friendly and suitable for returnees.",
+                    remote_suitability_score=9,
+                    entry_barrier="Low",
+                    target_companies=["Amazon", "Tata SCIP"],
+                    demand_index_2026="Medium"
+                )
+            ]
+        )
        
-        
     log_entry: AgentLogEntry = {
         "agent_name": "Recommender Agent",
         "action": "Generated 3-5 returnee-friendly career path recommendations.",

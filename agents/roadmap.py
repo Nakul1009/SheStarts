@@ -61,7 +61,57 @@ def roadmap_agent(state: CareerCounselingState) -> CareerCounselingState:
         )
     except Exception as e:
         print(f"Roadmap Agent failed: {e}. Falling back to default plan.")
-        # Fallback
+        from agents.state import RoadmapStep, ResourceLink
+        roadmap_plan = RoadmapPlan(
+            target_role=target_role,
+            phase_30_days=[
+                RoadmapStep(
+                    topic="Foundational Skills & Certification",
+                    description=f"Gain essential certifications and theoretical concepts required for a {target_role}.",
+                    resources=[
+                        ResourceLink(
+                            name="Google Professional Certificate",
+                            platform="Coursera",
+                            url="https://www.coursera.org"
+                        ),
+                        ResourceLink(
+                            name="Foundations Course",
+                            platform="YouTube Tutorial",
+                            url="https://www.youtube.com"
+                        )
+                    ],
+                    goal_milestone="Complete core foundational certificate."
+                )
+            ],
+            phase_60_days=[
+                RoadmapStep(
+                    topic="Practical Portfolio Projects",
+                    description="Build initial projects and apply learnings to practical scenarios.",
+                    resources=[
+                        ResourceLink(
+                            name="Guided Project Pathways",
+                            platform="GitHub / Kaggle",
+                            url="https://github.com"
+                        )
+                    ],
+                    goal_milestone="Build and publish first portfolio project on GitHub."
+                )
+            ],
+            phase_90_days=[
+                RoadmapStep(
+                    topic="Advanced Capstone & Resume Prep",
+                    description="Design a capstone project and prepare applications for returnship programs.",
+                    resources=[
+                        ResourceLink(
+                            name="Returnship Openings & Apply Guide",
+                            platform="Internshala / Company Portals",
+                            url="https://internshala.com"
+                        )
+                    ],
+                    goal_milestone="Finalize resume, deploy capstone, and submit 3 returnship applications."
+                )
+            ]
+        )
         
         
     log_entry: AgentLogEntry = {
