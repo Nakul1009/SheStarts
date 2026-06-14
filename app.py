@@ -494,20 +494,16 @@ elif st.session_state.page == "dashboard":
                                 links_html += f'<a href="{res.url}" target="_blank" style="background: #F3E8FF; color: #7C3AED; font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; text-decoration: none; border: 1px solid #7C3AED30;">🔗 {res.name} ({res.platform})</a>'
                             links_html += '</div>'
                         
-                        st.markdown(f"""
-                        <div style="background: white; border-radius: 10px; border: 1px solid #E5E7EB; padding: 1.2rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
-                            <h5 style="margin-top: 0; color: #4C1D95; font-size: 1rem; margin-bottom: 5px;">{step.topic}</h5>
-                            <p style="color: #4B5563; font-size: 0.85rem; line-height: 1.5; margin-bottom: 10px;">{step.description}</p>
-                            
-                            <div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px;">
-                                <span style="font-size: 0.75rem; font-weight: 700; color: #EC4899; text-transform: uppercase;">🎯 Goal / Project Milestone:</span>
-                                <p style="margin: 2px 0 0 0; color: #9D174D; font-size: 0.85rem; font-weight: 500;">{step.goal_milestone}</p>
-                            </div>
-                            
-                            <div style="font-size: 0.8rem; color: #6B7280; font-weight: 500;">Suggested Learning Resources:</div>
-                            {links_html}
-                        </div>
-                        """, unsafe_allow_html=True)
+                        st.markdown(f"""<div style="background: white; border-radius: 12px; border: 1px solid #E5E7EB; padding: 1.2rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+<h5 style="margin-top: 0; color: #4C1D95; font-size: 1.1rem; margin-bottom: 6px; font-weight: 600;">{step.topic}</h5>
+<p style="color: #4B5563; font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">{step.description}</p>
+<div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;">
+<span style="font-size: 0.75rem; font-weight: 700; color: #EC4899; text-transform: uppercase; display: block; margin-bottom: 4px;">🎯 Goal / Project Milestone:</span>
+<p style="margin: 0; color: #9D174D; font-size: 0.875rem; font-weight: 500; line-height: 1.4;">{step.goal_milestone}</p>
+</div>
+<div style="font-size: 0.825rem; color: #6B7280; font-weight: 600; margin-bottom: 6px;">Suggested Learning Resources:</div>
+{links_html}
+</div>""", unsafe_allow_html=True)
                 else:
                     st.write("No steps specified for this phase.")
         else:

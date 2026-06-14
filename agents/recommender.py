@@ -5,6 +5,9 @@ from agents.state import CareerRecommendations, CareerCounselingState, AgentLogE
 from agents.llm_helper import get_structured_output
 from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
 from langchain_chroma import Chroma
+from dotenv import load_dotenv
+load_dotenv()
+
 
 
 def retrieve_counseling_context(query: str, state: CareerCounselingState) -> str:
@@ -30,7 +33,7 @@ def retrieve_counseling_context(query: str, state: CareerCounselingState) -> str
         )
         results = db.similarity_search(query, k=3)
         context = "\n\n".join([doc.page_content for doc in results])
-        print(f"Retrieved {len(results)} relevant records from Chroma Vector DB.")
+        
     except Exception as e:
         print(f"Chroma DB retrieval failed: {e}. Using direct data fallback.")
         try:
